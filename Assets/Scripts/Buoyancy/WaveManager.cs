@@ -1,34 +1,33 @@
 ﻿using UnityEngine;
 
-/* #Funfact 
- * Water doesn't move horizontally, its the waves that carry themselves through the ocean.
- */
+/*
+ * TODO: Theorize a better wave to attain the wave data relative to ... ?
+ */ 
 public class WaveManager : MonoBehaviour
 {
-    public static WaveManager singleton;
+    public static WaveManager instance;
 
-    public Transform wave;
+    public Material wave;
 
     Vector4 wA, wB, wC;
-
    
     private void Awake()
     {
-        if (singleton == null)
-            singleton = this;
-        else if (singleton != null)
+        if (instance == null)
+            instance = this;
+        else if (instance != null)
             Destroy(this);
+
+
+        GetWaveData();
     }
 
-    void Start()
+    private void GetWaveData()
     {
         // Get Wave Shader To Collect Its Properties For Our Own Sine Wave Shader
-        Material wave = Resources.Load<Material>("Wave");
-
         wA = wave.GetVector("_WaveA");
         wB = wave.GetVector("_WaveB");
         wC = wave.GetVector("_WaveC");
-
     }
 
     public float getHeight(float x, float z)
@@ -47,7 +46,7 @@ public class WaveManager : MonoBehaviour
     {
         float s = wave.z;
         float k = (2 * Mathf.PI) / wave.w;
-        float c = Mathf.Sqrt(9.82f / k);
+        float c = Mathf.Sqrt(Mathf.Abs(Physics.gravity.y) / k);
         float a = s / k;
 
         Vector2 d = new Vector2(wave.x, wave.y);

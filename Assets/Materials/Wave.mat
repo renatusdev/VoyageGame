@@ -31,6 +31,6 @@ Material:
     - _ColorBlend: 0.3
     m_Colors:
     - Color_4610809B: {r: 4.862745, g: 7.309804, b: 7.309804, a: 0}
-    - _WaveA: {r: 1, g: 1, b: 0.3, a: 21}
-    - _WaveB: {r: 0, g: 1, b: 0.2, a: 12}
-    - _WaveC: {r: 1, g: 0, b: 0.3, a: 53.25}
+    - _WaveA: {r: 1, g: 1, b: 0, a: 22}
+    - _WaveB: {r: 0, g: 1, b: 0.43, a: 22}
+    - _WaveC: {r: 1, g: 0, b: 0, a: 22}

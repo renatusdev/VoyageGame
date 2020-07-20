@@ -44,8 +44,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc0b674c76b158a4c8de4f10355229cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dimensions: 15
-  scale: 2
+  dimensions: 25
+  scale: 3
 --- !u!114 &4577911739454795682
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -1,91 +1,63 @@
-﻿using System;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
-
 /*
- * NOTE:
+ * Should be stored under a parent class called "Floaters".
  * 
- * a) Floaters apply gravity manually. This is because the automatic gravity property of rigidbody
- * applies gravity at the center of mass, whilst with floaters we apply a percentage of gravity in each floater position.
- * 
- * b) Use the drag properties of the Rigidbody component to adjust the buoyant force's influence.
- */
-
-[RequireComponent(typeof(Rigidbody))]
+ */ 
 public class Floater : MonoBehaviour
 {
-    public Transform forces;
 
-    [Range(0, 1)]
-    [Tooltip("The overall buoyant influence over this object. At zero it sinks, at 10 its really bouncy.")]
-    public float magnitude = 1;
+    public float waterVelocityDrag = 0.99f;
+    public float waterAngularDrag = 0.5f;
 
-    [Range(0, 10)]
-    [Tooltip("The viscocity of water that stops the object from moving.")]
-    public float drag = 0;
+    [Range(1, 5)] public float strength;
+    [Range(1, 5)] public float objectDepth;
 
-    [Range(0, 25)]
-    [Tooltip("The viscocity of water that stops the object from rotating.")]
-    public float angularDrag = 0; 
-
-
+    #region Private Fields
+    int floaters;
     Rigidbody rB;
-    Vector3[] points;
+    #endregion
 
     private void Start()
     {
-        rB = GetComponent<Rigidbody>();
-        rB.useGravity = false;
+        rB = GetComponentInParent<Rigidbody>();
+        floaters = transform.parent.childCount;
 
-        points = new Vector3[forces.childCount];
-        GenerateForcePositions();    
+        if (rB.useGravity)
+            rB.useGravity = false;
     }
 
-    void GenerateForcePositions()
-    {
-        for (int i = 0; i < forces.childCount; i++)
-            points[i] = forces.GetChild(i).position;
-    }
+    // There's a bouncyness to these forces, if submerged = 1 then it bounces up. We want a smooth upwards transition.
 
-    void FixedUpdate()
+    private void FixedUpdate()
     {
-        GenerateForcePositions();
+        float y = transform.position.y;
+        float wH = WaveManager.instance.getHeight(transform.position.x, transform.position.z);
 
-        foreach (Vector3 pos in points)
+        // Manual gravity subdivided based on the amount of floaters.
+        rB.AddForce(Physics.gravity / floaters);
+
+        // If the floater is below water
+        if(y <= wH)
         {
-            float y = pos.y;
-            float wH = WaveManager.singleton.getHeight(pos.x, pos.z);
+            float submersion = Mathf.Clamp01(wH - y) / objectDepth;
+            float buoyancy = Mathf.Abs(Physics.gravity.y) * submersion * strength;
 
-            rB.AddForceAtPosition(Physics.gravity / points.Length, pos, ForceMode.Acceleration);
+            // Buoyant Force
+            rB.AddForceAtPosition(Vector3.up * buoyancy, transform.position, ForceMode.Acceleration);
 
-            if (y < wH)
-            {
-                float submersion = Mathf.Clamp01(wH - y) * magnitude;
-                Vector3 buoyancy = new Vector3(0, Math.Abs(Physics.gravity.y) * submersion, 0);
+            // Drag Force
+            rB.AddForce(-rB.velocity * waterVelocityDrag * Time.fixedDeltaTime, ForceMode.VelocityChange);
 
-                rB.AddForceAtPosition(buoyancy, pos, ForceMode.Acceleration);
-                rB.AddForceAtPosition(-rB.velocity * submersion * drag, pos, ForceMode.Acceleration);
-                rB.AddTorque(-rB.angularVelocity * submersion * angularDrag, ForceMode.Acceleration);
-            }
+            // Torque Force
+            rB.AddTorque(-rB.angularVelocity * waterAngularDrag * Time.fixedDeltaTime, ForceMode.Impulse);
         }
     }
 
     private void OnDrawGizmos()
     {
-        points = new Vector3[forces.childCount];
-        GenerateForcePositions();
-        foreach (Vector3 pos in points)
-        {
-            Gizmos.color = Color.blue;
-            Gizmos.DrawSphere(pos, 0.3f);
-        }
-
-        if (Application.isPlaying)
-        {
-            float waveHeight = WaveManager.singleton.getHeight(transform.position.x, transform.position.z);
-
-            Gizmos.color = Color.red;
-            Gizmos.DrawSphere(new Vector3(transform.position.x, waveHeight, transform.position.z), 0.5f);
-        }
+        Gizmos.DrawSphere(transform.position, 0.2f);
     }
 }
