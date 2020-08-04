@@ -1,24 +1,37 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
+using UnityEngine.Rendering;
+using UnityEngine.Rendering.Universal;
 
+public enum ShipState { Sailing, Ramming }
 public class ShipController : MonoBehaviour
 {
     #region Constant Variables
     private readonly static int maxSailAngle = 45;
     private readonly static int minSpeed = 5;
     private readonly static float sailRotation = 0.4f;
-    private readonly static float steerRotation = 0.01f;
+    private readonly static float steerRotation = 0.1f;
+    private readonly static float ramFOV = 50;
+    private readonly static float ramShake = 2;
+    private readonly static float ramLenseDistor = 0.4f;
+    private readonly static float ramRecovery = 1.7f;
     #endregion
 
+    public static float FOV = 75;
+    public static int ramSpeed = 50;
+
     [Header("Sailing")]
-    [Range(0,25)] public int thurst;
+    [Range(0,45)] public int thurst;
 
     public Transform frontSail, midSail, backSail;
+    public CinemachineVirtualCamera cam;
 
-    float sailAngle;
+    ShipState currState;
+    LensDistortion lD;
+    float sailAngle, ram;
     Rigidbody rB;
-
 
     [Header("Debug")]
     public bool debug;
@@ -26,20 +39,50 @@ public class ShipController : MonoBehaviour
     void Start()
     {
         rB = GetComponent<Rigidbody>();
-        sailAngle = 0;
+        Camera.main.GetComponent<Volume>().profile.TryGet(out lD); 
 
-        Cursor.visible = false;
+        if (rB.useGravity)
+            rB.useGravity = false;
+        sailAngle = 0;
+        cam.m_Lens.FieldOfView = FOV;
+        ChangeState(ShipState.Sailing);
     }
 
-    private void Update()
+    private void OnCollisionEnter(Collision collision)
     {
-        
+        if (currState.Equals(ShipState.Ramming))
+        {
+            ChangeState(ShipState.Sailing);
+        }
     }
 
     void FixedUpdate()
     {
+        Ram();
         Sail();
         Steer();
+    }
+
+    private void Ram()
+    {   
+        if(Input.GetKeyDown(KeyCode.W))
+            ChangeState(ShipState.Ramming);
+
+        if (Input.GetKey(KeyCode.W) & currState.Equals(ShipState.Ramming))
+        {
+            if (!CinemachineShake.instance.IsActive())
+                CinemachineShake.instance.Shake(ramShake, 1);
+            
+            ram = Mathf.Lerp(ram, ramSpeed, Time.deltaTime);
+            cam.m_Lens.FieldOfView = Mathf.Lerp(cam.m_Lens.FieldOfView, ramFOV, Time.deltaTime);
+            lD.intensity.value = Mathf.Lerp(lD.intensity.value, -ramLenseDistor, Time.deltaTime);
+        }
+        else
+        {
+            ram = Mathf.Lerp(ram, 0, Time.deltaTime * ramRecovery);
+            cam.m_Lens.FieldOfView = Mathf.Lerp(cam.m_Lens.FieldOfView, FOV, Time.deltaTime * ramRecovery);
+            lD.intensity.value = Mathf.Lerp(lD.intensity.value, 0, Time.deltaTime * ramRecovery);
+        }
     }
 
     private void Steer()
@@ -60,7 +103,6 @@ public class ShipController : MonoBehaviour
             float sailsHorz = Input.GetAxis("Sailing");
 
             sailAngle += sailsHorz * sailRotation;
-
             sailAngle = Mathf.Clamp(sailAngle, -maxSailAngle, maxSailAngle);
 
             frontSail.localRotation = Quaternion.AngleAxis(sailAngle, Vector3.up);
@@ -71,8 +113,10 @@ public class ShipController : MonoBehaviour
 
     private void OnGUI()
     {
-        if (debug)
+        if (debug & Application.isPlaying)
         {
+            
+
             GUI.Label(new Rect(0, 0, 100, 25), "Ship Data");
             GUI.Label(new Rect(0, 25, 300, 25), "Sail Speed: " + GetSailSpeed());
             GUI.Label(new Rect(0, 50, 300, 25), "Velocity: " + rB.velocity.ToString());
@@ -81,7 +125,7 @@ public class ShipController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (debug)
+        if (debug & Application.isPlaying)
         {
             Gizmos.color = Color.green;
             Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y + 25, transform.position.z), frontSail.forward * 10);
@@ -93,6 +137,9 @@ public class ShipController : MonoBehaviour
 
     float GetSailSpeed()
     {
-        return (Mathf.Clamp01(Vector3.Dot(frontSail.forward, WindManager.instance.getDirection())) * (thurst - minSpeed)) + minSpeed;
+        return (Mathf.Clamp01(Vector3.Dot(frontSail.forward, WindManager.instance.getDirection())) * (thurst - minSpeed)) + minSpeed + ram;
     }
+
+
+    public void ChangeState(ShipState state) { currState = state; }
 }

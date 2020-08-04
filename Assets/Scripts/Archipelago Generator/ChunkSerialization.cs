@@ -6,7 +6,7 @@ using UnityEngine;
 public class ChunkSerialization : MonoBehaviour
 {
     public static Transform viewer;                         // Viewer
-    public static int rD = 18;                              // Render Distance
+    public static int rD = 6;                              // Render Distance
     public static int chunkSize;                            // Scale Of A Chunk
     public static Dictionary<Vector3, TerrainChunk> chunks; // Chunk Container Of All Chunks
     private static List<TerrainChunk> lastChunks;           // Chunk Container Of Visible Chunks @ Last Frame

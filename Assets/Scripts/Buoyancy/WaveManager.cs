@@ -18,11 +18,10 @@ public class WaveManager : MonoBehaviour
         else if (instance != null)
             Destroy(this);
 
-
-        GetWaveData();
+        UpdateWaveData();
     }
 
-    private void GetWaveData()
+    public void UpdateWaveData()
     {
         // Get Wave Shader To Collect Its Properties For Our Own Sine Wave Shader
         wA = wave.GetVector("_WaveA");

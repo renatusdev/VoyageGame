@@ -44,12 +44,12 @@ Material:
     - Vector1_2CB1FB2F: 0.452
     - Vector1_31371163: 2
     - Vector1_3293E86E: 0.28
-    - Vector1_4DEEB0BF: 0.12
+    - Vector1_4DEEB0BF: 0.4
     - Vector1_C0A7E248: 0
     - Vector1_CB4D1FC4: 15
     - Vector1_DFFA8F0E: 1
-    - Vector1_F6627273: 0
-    - Vector1_FD9F1011: 0.84
+    - Vector1_F6627273: 1
+    - Vector1_FD9F1011: 0.9
     - _Blend: 2.49
     - _BlendSharpness: 45.53
     - _Edge: 0.221

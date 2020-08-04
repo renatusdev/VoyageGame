@@ -8,6 +8,7 @@ using UnityEngine;
  */ 
 public class Floater : MonoBehaviour
 {
+    public int floaters;
 
     public float waterVelocityDrag = 0.99f;
     public float waterAngularDrag = 0.5f;
@@ -15,18 +16,16 @@ public class Floater : MonoBehaviour
     [Range(1, 5)] public float strength;
     [Range(1, 5)] public float objectDepth;
 
-    #region Private Fields
-    int floaters;
-    Rigidbody rB;
+    #region Debug Parameters
+    public bool debug;
+    private bool addingBuoyancy;
     #endregion
+
+    Rigidbody rB;
 
     private void Start()
     {
         rB = GetComponentInParent<Rigidbody>();
-        floaters = transform.parent.childCount;
-
-        if (rB.useGravity)
-            rB.useGravity = false;
     }
 
     // There's a bouncyness to these forces, if submerged = 1 then it bounces up. We want a smooth upwards transition.
@@ -37,11 +36,13 @@ public class Floater : MonoBehaviour
         float wH = WaveManager.instance.getHeight(transform.position.x, transform.position.z);
 
         // Manual gravity subdivided based on the amount of floaters.
-        rB.AddForce(Physics.gravity / floaters);
+        rB.AddForce((Physics.gravity / floaters));
 
         // If the floater is below water
-        if(y <= wH)
+        if (y <= wH)
         {
+            addingBuoyancy = true;
+
             float submersion = Mathf.Clamp01(wH - y) / objectDepth;
             float buoyancy = Mathf.Abs(Physics.gravity.y) * submersion * strength;
 
@@ -52,12 +53,24 @@ public class Floater : MonoBehaviour
             rB.AddForce(-rB.velocity * waterVelocityDrag * Time.fixedDeltaTime, ForceMode.VelocityChange);
 
             // Torque Force
-            rB.AddTorque(-rB.angularVelocity * waterAngularDrag * Time.fixedDeltaTime, ForceMode.Impulse);
+            rB.AddTorque(-rB.angularVelocity * waterAngularDrag * Time.fixedDeltaTime, ForceMode.VelocityChange);
         }
+        else
+            addingBuoyancy = false;
     }
 
     private void OnDrawGizmos()
     {
-        Gizmos.DrawSphere(transform.position, 0.2f);
+        if (debug)
+        {
+            Gizmos.color = Color.grey;
+            Gizmos.DrawSphere(transform.position, 0.2f);
+
+            if (Application.isPlaying & addingBuoyancy)
+                Gizmos.color = Color.blue;
+
+            Gizmos.DrawSphere(transform.position, 0.2f);
+        }
+
     }
 }

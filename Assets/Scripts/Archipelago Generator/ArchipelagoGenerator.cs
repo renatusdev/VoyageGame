@@ -9,7 +9,7 @@ public class ArchipelagoGenerator : MonoBehaviour
     public bool showMap;
     public Transform player;
     
-    [Range(5, 10)] public int waterRate = 7;
+    [Range(5, 10)] public readonly static int waterRate = 7;
 
     [Header("Map Settings")]
     [Range(1, 128)] public int width = 64;

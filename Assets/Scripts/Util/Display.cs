@@ -4,24 +4,18 @@ using UnityEngine;
 
 public class Display : MonoBehaviour
 {
-    [Range(2, 100)] public int scale;
-    [Range(1,100)]  public int area;
+    private readonly static float minHeight = 0.6f;
 
-    public float xOff;
-    public float yOff;
-
-    Texture2D txt;
+    public int x, y;
+    public float scale;
 
     private void OnGUI()
     {
-        if (txt == null)
-            return;
-        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), TextureGenerator.TextureFromHeightMap(Noise.Generate(area, area, xOff, yOff, scale,1)));
+        GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), IslandTextureGenerator(x, y, scale));
     }
 
-    public void SendTexture(Texture2D txt)
+    Texture2D IslandTextureGenerator(int x, int y, float scale)
     {
-        this.txt = txt;
+        return TextureGenerator.TextureFromHeightMap(Noise.GenerateRegion(x, y, scale, 0.64f, 100));
     }
-
 }

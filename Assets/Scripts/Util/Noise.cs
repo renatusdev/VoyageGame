@@ -5,11 +5,8 @@ using UnityEngine;
 public static class Noise 
 {
     // Simple Perlin Noise Generator
-    public static float[,] Generate(int width, int height, float xOff, float yOff, float scale, float influence)
+    public static float[,] Generate(int width, int height, float xOff, float yOff, float scale)
     {
-        if(influence < 0)
-            throw new System.Exception();
-
         float[,] map = new float[width, height];
 
         for (int y = 0; y < height; y++)
@@ -19,15 +16,54 @@ public static class Noise
                 float dx = (x + xOff) / scale;
                 float dy = (y + yOff) / scale;
 
-                map[x, y] = Mathf.PerlinNoise(dx, dy) * influence;
+                map[x, y] = Mathf.PerlinNoise(dx, dy);
             }
         }
 
         return map;
     }
 
+    public static float[,] GenerateRegion(int x, int y, float scale, float minHeight, int area)
+    {
+        // Loops until the starting pixel is >= minHeight
+        if (Mathf.PerlinNoise(x / scale, y / scale) < minHeight)
+            return GenerateRegion(x + 20, y + 20, scale, minHeight, area);
+
+        List<Vector3> data = new List<Vector3>();
+        int halfA = (area / 2);
+        FloodFill(data, Generate(area, area, x - halfA, y - halfA, scale), minHeight, halfA, halfA);
+
+        float[,] map = new float[area, area];
+
+        for (int i = 0; i < data.Count; i++)
+        {
+            Vector3 sample = data[i];
+            map[(int)sample.x, (int)sample.y] = sample.z;
+        }
+        return map;
+    }
+
+    static void FloodFill(List<Vector3> data, float[,] map, float minHeight, int x, int y)
+    {
+        if (x < 0 | y < 0 | x >= map.GetLength(0) | y >= map.GetLength(1))
+            return;
+        if (map[x, y] < minHeight)
+        {
+            // TODO: THIS statement below changes all pixels to 0.3f
+            data.Add(new Vector3(x, y, 0.3f));
+            return;
+        }
+        data.Add(new Vector3(x, y, map[x, y]));
+        map[x, y] = 0;
+
+        FloodFill(data, map, minHeight, x + 1, y);
+        FloodFill(data, map, minHeight, x - 1, y);
+        FloodFill(data, map, minHeight, x, y + 1);
+        FloodFill(data, map, minHeight, x, y - 1);
+    }
+
     // Perlin Noise Generator w/ Texture Influence (uses alpha of pixels)
-    public static float[,] Generate(Texture2D txt, int padding, float xOff, float yOff, float baseIntesity, float txtIntensity, float extScale, float intScale)
+    public static float[,] GenerateWithTexture(Texture2D txt, int padding, float xOff, float yOff, float baseIntesity, float txtIntensity, float extScale, float intScale)
     {
         int w = txt.width + (padding * 2) + 2;
         int h = txt.height + (padding * 2) + 2;
@@ -41,7 +77,7 @@ public static class Noise
         int txtX;
         int txtY;
 
-        float[,] map = Generate(w, h, xOff, yOff, extScale, baseIntesity);
+        float[,] map = Generate(w, h, xOff, yOff, extScale);
 
         for (int y = halfFullH - halfTxtH; y < halfFullH + halfTxtH; y++)
         {
