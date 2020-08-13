@@ -10,7 +10,7 @@ Material:
   m_Name: Wave
   m_Shader: {fileID: -6465566751694194690, guid: 0aae9ee511b01eb498f456a9a27897b3,
     type: 3}
-  m_ShaderKeywords: 
+  m_ShaderKeywords: ETC1_EXTERNAL_ALPHA
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0

@@ -33,7 +33,7 @@ public class Floater : MonoBehaviour
     private void FixedUpdate()
     {
         float y = transform.position.y;
-        float wH = WaveManager.instance.getHeight(transform.position.x, transform.position.z);
+        float wH = WaveManager.instance.GetHeight(transform.position.x, transform.position.z);
 
         // Manual gravity subdivided based on the amount of floaters.
         rB.AddForce((Physics.gravity / floaters));

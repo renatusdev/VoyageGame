@@ -13,17 +13,22 @@ public class WindManager : MonoBehaviour
     // The wind direction
     Vector3 direction;
 
-    void Start()
+
+    private void Awake()
     {
-        if (instance == null)
+        if (instance == null)   
             instance = this;
         else
             Destroy(this);
+    }
 
-        Change(new Vector3(0, 0, 1));
-    }   
 
-    public Vector3 getDirection()
+    private void Start()
+    {
+        Change(new Vector3(1, 0, 0));
+    }
+
+    public Vector3 GetDirection()
     {
         return direction;
     }
@@ -31,7 +36,7 @@ public class WindManager : MonoBehaviour
     public void Change(Vector3 newWind)
     {   
         direction = newWind.normalized;
-        trails.Instantiate();
+        trails.Play();
     }
 
 }

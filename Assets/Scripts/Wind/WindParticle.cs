@@ -12,9 +12,10 @@ public class WindParticle : MonoBehaviour
         wind = GetComponent<ParticleSystem>();
     }
 
-    public void Instantiate()
+    public void Play()
     {
-        StartCoroutine(PlayTrails(windReplay));
+        if(isActiveAndEnabled)
+            StartCoroutine(PlayTrails(windReplay));
     }
 
     IEnumerator PlayTrails(int count)
@@ -23,7 +24,7 @@ public class WindParticle : MonoBehaviour
         {
             if (!wind.isPlaying)
             {
-                wind.transform.forward = WindManager.instance.getDirection();
+                wind.transform.forward = WindManager.instance.GetDirection();
                 wind.Play();
             }
 

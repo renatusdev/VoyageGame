@@ -5,7 +5,6 @@ using Cinemachine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
 
-public enum ShipState { Sailing, Ramming }
 public class ShipController : MonoBehaviour
 {
     #region Constant Variables
@@ -13,75 +12,88 @@ public class ShipController : MonoBehaviour
     private readonly static int minSpeed = 5;
     private readonly static float sailRotation = 0.4f;
     private readonly static float steerRotation = 0.1f;
-    private readonly static float ramFOV = 50;
-    private readonly static float ramShake = 2;
-    private readonly static float ramLenseDistor = 0.4f;
-    private readonly static float ramRecovery = 1.7f;
+    private readonly static float ramFOV = 50;              // Ram property for FOV
+    private readonly static float ramShake = 2;             // Ram property for Camera Shake
+    private readonly static float ramLenseDistor = 0.4f;    // Ram property for Lense Distortion
+    private readonly static float ramGPXRecovery = 1.7f;    // Time modifier for visual effects to return to normal after ramming
+    private readonly static float ramRecovery = 5;          // Time modifier for ram cooldown
+    private readonly static int ramMaxEnergy = 2;           // Time modifier for ram effect
     #endregion
 
-    public static float FOV = 75;
-    public static int ramSpeed = 50;
-
+    #region Public Variables
     [Header("Sailing")]
-    [Range(0,45)] public int thurst;
-
     public Transform frontSail, midSail, backSail;
     public CinemachineVirtualCamera cam;
+    [Range(0, 45)] public int thurst;
+    #endregion
 
-    ShipState currState;
-    LensDistortion lD;
-    float sailAngle, ram;
-    Rigidbody rB;
+    #region Static Variables
+    public static float FOV = 75;
+    public static int ramSpeed = 50;
+    public static float ramEnergy;
 
+    private static float sailAngle, ram;
+    private static LensDistortion lD;
+    private static Rigidbody rB;
+    private bool ramCooling;
+    #endregion
+
+    #region Debug Variables
     [Header("Debug")]
     public bool debug;
+    #endregion
 
     void Start()
     {
+        Camera.main.GetComponent<Volume>().profile.TryGet(out lD);
         rB = GetComponent<Rigidbody>();
-        Camera.main.GetComponent<Volume>().profile.TryGet(out lD); 
 
         if (rB.useGravity)
             rB.useGravity = false;
-        sailAngle = 0;
+
         cam.m_Lens.FieldOfView = FOV;
-        ChangeState(ShipState.Sailing);
+        ramEnergy = ramMaxEnergy;
+        ramCooling = false;
+        sailAngle = 0;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void Update()
     {
-        if (currState.Equals(ShipState.Ramming))
-        {
-            ChangeState(ShipState.Sailing);
-        }
+        Ram();
+        Sail();
+        //FOV += Input.mouseScrollDelta.y * 3;
     }
 
     void FixedUpdate()
     {
-        Ram();
-        Sail();
         Steer();
     }
 
     private void Ram()
-    {   
-        if(Input.GetKeyDown(KeyCode.W))
-            ChangeState(ShipState.Ramming);
-
-        if (Input.GetKey(KeyCode.W) & currState.Equals(ShipState.Ramming))
+    {
+        if (Input.GetKey(KeyCode.W) & !ramCooling)
         {
             if (!CinemachineShake.instance.IsActive())
                 CinemachineShake.instance.Shake(ramShake, 1);
-            
-            ram = Mathf.Lerp(ram, ramSpeed, Time.deltaTime);
-            cam.m_Lens.FieldOfView = Mathf.Lerp(cam.m_Lens.FieldOfView, ramFOV, Time.deltaTime);
-            lD.intensity.value = Mathf.Lerp(lD.intensity.value, -ramLenseDistor, Time.deltaTime);
+
+            float t = Time.deltaTime;
+            ramEnergy -= t;
+            ramCooling = (ramEnergy <= 0);
+
+            ram = Mathf.Lerp(ram, ramSpeed, t);
+            cam.m_Lens.FieldOfView = Mathf.Lerp(cam.m_Lens.FieldOfView, ramFOV, t);
+            lD.intensity.value = Mathf.Lerp(lD.intensity.value, -ramLenseDistor, t);
         }
         else
         {
-            ram = Mathf.Lerp(ram, 0, Time.deltaTime * ramRecovery);
-            cam.m_Lens.FieldOfView = Mathf.Lerp(cam.m_Lens.FieldOfView, FOV, Time.deltaTime * ramRecovery);
-            lD.intensity.value = Mathf.Lerp(lD.intensity.value, 0, Time.deltaTime * ramRecovery);
+            float t = Time.deltaTime;
+
+            ram = Mathf.Lerp(ram, 0, Time.deltaTime * ramGPXRecovery);
+            cam.m_Lens.FieldOfView = Mathf.Lerp(cam.m_Lens.FieldOfView, FOV, t * ramGPXRecovery);
+            lD.intensity.value = Mathf.Lerp(lD.intensity.value, 0, t * ramGPXRecovery);
+
+            ramEnergy = Mathf.Clamp(ramEnergy + (t/ramRecovery), 0, ramMaxEnergy);
+            ramCooling = (ramEnergy < ramMaxEnergy);
         }
     }
 
@@ -120,6 +132,8 @@ public class ShipController : MonoBehaviour
             GUI.Label(new Rect(0, 0, 100, 25), "Ship Data");
             GUI.Label(new Rect(0, 25, 300, 25), "Sail Speed: " + GetSailSpeed());
             GUI.Label(new Rect(0, 50, 300, 25), "Velocity: " + rB.velocity.ToString());
+            GUI.Label(new Rect(0, 75, 300, 25), "Ram Energy: " + ramEnergy);
+
         }
     }
 
@@ -131,15 +145,12 @@ public class ShipController : MonoBehaviour
             Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y + 25, transform.position.z), frontSail.forward * 10);
 
             Gizmos.color = Color.blue;
-            Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y + 25, transform.position.z), WindManager.instance.getDirection() * 10);
+            Gizmos.DrawRay(new Vector3(transform.position.x, transform.position.y + 25, transform.position.z), WindManager.instance.GetDirection() * 10);
         }
     }
 
     float GetSailSpeed()
     {
-        return (Mathf.Clamp01(Vector3.Dot(frontSail.forward, WindManager.instance.getDirection())) * (thurst - minSpeed)) + minSpeed + ram;
+        return (Mathf.Clamp01(Vector3.Dot(frontSail.forward, WindManager.instance.GetDirection())) * (thurst - minSpeed)) + minSpeed + ram;
     }
-
-
-    public void ChangeState(ShipState state) { currState = state; }
 }
