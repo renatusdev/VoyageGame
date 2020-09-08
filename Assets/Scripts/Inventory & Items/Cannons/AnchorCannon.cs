@@ -15,6 +15,6 @@ public class AnchorCannon : Cannon
     public override void Fire()
     {
         base.Fire();
-        Debug.Log("Fire Anchor Cannon!");
+        //Debug.Log("Fire Anchor Cannon!");
     }
 }

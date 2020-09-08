@@ -55,19 +55,19 @@ public class IslandGenerator : MonoBehaviour
                 tris[index(x, z) * 6 + 5] = index(x + 1, z);
             }
 
-        //for (int x = 0; x < rArea; x++)
-        //    for (int z = 0; z < rArea; z++)
-        //    {
-                
+        for (int x = 0; x < rArea; x++)
+            for (int z = 0; z < rArea; z++)
+            {
 
-        //        tris[index(x, z) * 6 + 0] = index(x, z);
-        //        tris[index(x, z) * 6 + 1] = index(x, z + 1);
-        //        tris[index(x, z) * 6 + 2] = index(x + 1, z + 1);
 
-        //        tris[index(x, z) * 6 + 3] = index(x, z);
-        //        tris[index(x, z) * 6 + 4] = index(x + 1, z + 1);
-        //        tris[index(x, z) * 6 + 5] = index(x + 1, z);
-        //    }
+                tris[index(x, z) * 6 + 0] = index(x, z);
+                tris[index(x, z) * 6 + 1] = index(x, z + 1);
+                tris[index(x, z) * 6 + 2] = index(x + 1, z + 1);
+
+                tris[index(x, z) * 6 + 3] = index(x, z);
+                tris[index(x, z) * 6 + 4] = index(x + 1, z + 1);
+                tris[index(x, z) * 6 + 5] = index(x + 1, z);
+            }
 
         Mesh m = new Mesh() { vertices = verts, triangles = tris };
 

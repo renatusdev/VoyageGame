@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class Inventory : MonoBehaviour
 {
-    public static Inventory instance;
+    public static Inventory i;
 
     public Wood wood;
     public Dictionary<CannonType, Cannon> cannons;
 
     private void Awake()
     {
-        if (instance == null)
-            instance = this;
+        if (i == null)
+            i = this;
         else
             Destroy(this);
 
@@ -29,7 +29,6 @@ public class Inventory : MonoBehaviour
             { CannonType.Anchor, new AnchorCannon(0) }
         };
     }
-
 
     private void Start()
     {

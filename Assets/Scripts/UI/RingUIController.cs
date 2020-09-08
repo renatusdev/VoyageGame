@@ -30,8 +30,8 @@ public class RingUIController : MonoBehaviour
 
     void Start()
     {
-        divider = Resources.Load<GameObject>("Prefabs/GUI/Divider");
-        slot = Resources.Load<GameObject>("Prefabs/GUI/Slot");
+        divider = Resources.Load<GameObject>("GUI/Divider");
+        slot = Resources.Load<GameObject>("GUI/Slot");
 
         slotList = new List<GameObject>();
         divList = new List<GameObject>();

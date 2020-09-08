@@ -20,7 +20,6 @@ public static class ArchipelagoTextureGenerator
                 else
                     ocean.spawnWeight += waterRate;
             }
-
         GenerateRegions(regions, colormap, width, height);
 
         return TextureGenerator.TextureFromColorMap(colormap, width, height);
@@ -54,6 +53,7 @@ public static class ArchipelagoTextureGenerator
             }
         }
     }
+
 
     static int WeightedRandomizer(float totalWeight, Region[] regions)
     {

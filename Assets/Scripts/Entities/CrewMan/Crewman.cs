@@ -14,7 +14,7 @@ public class Crewman : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.U))
-            pF.Move(NodeMap.instance.GetNodes()[Random.Range(0, NodeMap.instance.GetNodes().Count - 1)]);
+        // if (Input.GetButtonDown("Fire1"))
+        //     pF.Move(NodeMap.instance.GetNodes()[Random.Range(0, NodeMap.instance.GetNodes().Count - 1)]);
     }
 }

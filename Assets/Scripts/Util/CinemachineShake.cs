@@ -18,7 +18,7 @@ public class CinemachineShake : MonoBehaviour
         else
             Destroy(this);
 
-        isShaking = false;
+        isShaking  = false;
         cam = GetComponent<CinemachineVirtualCamera>();
     }
 

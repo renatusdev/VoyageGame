@@ -15,6 +15,6 @@ public class NormalCannon : Cannon
     public override void Fire()
     {
         base.Fire();
-        Debug.Log("Fire Normal Cannon!");
+        //Debug.Log("Fire Normal Cannon!");
     }
 }

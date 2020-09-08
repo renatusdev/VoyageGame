@@ -4,11 +4,10 @@ using UnityEngine;
 
 /*
  * Should be stored under a parent class called "Floaters".
- * 
- */ 
+ */
 public class Floater : MonoBehaviour
 {
-    public int floaters;
+    [Range(1,100)] public int floaters;
 
     public float waterVelocityDrag = 0.99f;
     public float waterAngularDrag = 0.5f;
@@ -26,10 +25,13 @@ public class Floater : MonoBehaviour
     private void Start()
     {
         rB = GetComponentInParent<Rigidbody>();
+
+        // Gravity is manually applied.
+        if(rB.useGravity)
+            rB.useGravity = false;
     }
 
     // There's a bouncyness to these forces, if submerged = 1 then it bounces up. We want a smooth upwards transition.
-
     private void FixedUpdate()
     {
         float y = transform.position.y;

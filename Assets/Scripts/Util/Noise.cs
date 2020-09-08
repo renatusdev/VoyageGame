@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class Noise 
+public static class Noise
 {
     // Simple Perlin Noise Generator
     public static float[,] Generate(int width, int height, float xOff, float yOff, float scale)
@@ -104,7 +104,7 @@ public static float[,] Generate(int width, int height, float scale, int octaves,
 {
     if (scale <= 0)
         scale = 0.0001f;
-    // Disperse octaves around the perlin noise. The scroll param allows offsetting traversal in the editor. 
+    // Disperse octaves around the perlin noise. The scroll param allows offsetting traversal in the editor.
 
     // Create noise map.
     float[,] map = new float[width, height];
@@ -176,7 +176,7 @@ public static float[,] Generate(int width, int height, System.Random rnd, float 
     // Every octave will be placed in a random location of our perlin noise.
     Vector2[] octaveOffsets = new Vector2[octaves];
 
-    // Disperse octaves around the perlin noise. The scroll param allows offsetting traversal in the editor. 
+    // Disperse octaves around the perlin noise. The scroll param allows offsetting traversal in the editor.
     for (int i = 0; i < octaves; i++)
         octaveOffsets[i] = new Vector2(rnd.Next(-100000, 100000) + scroll.x, rnd.Next(-100000, 100000) + scroll.y);
 

@@ -1,0 +1,1 @@
+﻿public enum Creature { Fishes, Dolphins, Seagulls }

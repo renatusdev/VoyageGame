@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum CannonType { Normal, Anchor, Egg }
+public enum CannonType { None, Normal, Anchor, Egg }
 
 [System.Serializable]
 public class Cannon : Item 
@@ -15,8 +15,10 @@ public class Cannon : Item
     {
         if(GetAmount() <= 0)
         {
-            Debug.Log("No Cannons Left Captn'!");
+            //Debug.Log("No Cannons Left Captn'!");
         }
+        // Modify ship dmg to this cannon's dmg    
+        
         amount--;
     }
 

@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 2782105884848223468}
   - component: {fileID: 4831648932717168335}
   - component: {fileID: 3237610387741969819}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Shop Island
-  m_TagString: Untagged
+  m_TagString: Island
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

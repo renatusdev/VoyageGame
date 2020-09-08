@@ -38,10 +38,8 @@ public class Pathfinding : MonoBehaviour
 
         if (Vector2.Distance(transform.position, currNode.pos) < 0.1f)
         {
-            Debug.Log("reached");
             if (currNode == endNode)
             {
-                Debug.Log("finally");
                 isMoving = false;
             }
             FindPath(currNode.pos, endNode.pos);
